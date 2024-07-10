@@ -31,9 +31,10 @@ const Chat = () => {
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chat.messages]);
+  }, [chat?.messages]);
 
   useEffect(() => {
+    if (!chatId) return;
     const unSub = onSnapshot(doc(db, "chats", chatId), (res) => {
       setChat(res.data());
     });
@@ -101,13 +102,13 @@ const Chat = () => {
       });
     } catch (err) {
       console.log(err);
-    } finally{
-    setImg({
-      file: null,
-      url: "",
-    });
+    } finally {
+      setImg({
+        file: null,
+        url: "",
+      });
 
-    setText("");
+      setText("");
     }
   };
 
@@ -128,20 +129,24 @@ const Chat = () => {
         </div>
       </div>
       <div className="center">
-        {chat?.messages?.map((message) => (
-          <div
-            className={
-              message.senderId === currentUser?.id ? "message own" : "message"
-            }
-            key={message?.createAt}
-          >
-            <div className="texts">
-              {message.img && <img src={message.img} alt="" />}
-              <p>{message.text}</p>
-              <span>{format(message.createdAt.toDate())}</span>
+        {chat?.messages?.length > 0 ? (
+          chat.messages.map((message) => (
+            <div
+              className={
+                message.senderId === currentUser?.id ? "message own" : "message"
+              }
+              key={message.createdAt}
+            >
+              <div className="texts">
+                {message.img && <img src={message.img} alt="" />}
+                <p>{message.text}</p>
+                <span>{format(message.createdAt.toDate())}</span>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p>No messages yet</p>
+        )}
         {img.url && (
           <div className="message own">
             <div className="texts">
