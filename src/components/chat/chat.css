@@ -45,6 +45,37 @@
   color: #a5a5a5;
 }
 
+.chat .top .select {
+  display: flex;
+  align-items: center;
+  background-color: #f1f1f1;
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.chat .top .select img {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+}
+
+.chat .top .select select {
+  border: none;
+  background-color: transparent;
+  font-size: 16px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+}
+
+.chat .top .select select option {
+  background-color: #ffffff;
+  color: #333333;
+}
+
 .chat .top .icons {
   display: flex;
   gap: 20px;
@@ -58,7 +89,7 @@
 .chat .center {
   padding: 20px;
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -76,6 +107,10 @@
 
 .chat .center .message.own .texts p {
   background-color: #5183fe;
+}
+
+.chat .center .message.own span {
+  align-self: end;
 }
 
 .chat .center .message img {
@@ -167,4 +202,27 @@
 .chat .bottom .sendButton:disabled {
   background-color: #5182feb4;
   cursor: not-allowed;
+}
+
+.chat .center::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat .center::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.chat .center::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+  border: 3px solid #f1f1f1;
+}
+
+.chat .center::-webkit-scrollbar:hover {
+  background: #555;
+}
+
+.chat .center::-webkit-scrollbar:active {
+  background: #333;
 }
