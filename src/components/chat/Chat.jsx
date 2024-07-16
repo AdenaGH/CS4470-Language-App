@@ -13,6 +13,8 @@ import { useChatStore } from "../../lib/chatStore";
 import { useUserStore } from "../../lib/userStore";
 import upload from "../../lib/upload";
 import { format } from "timeago.js";
+import OpenAI from "openai";
+import languages from "../util/languages";
 
 const Chat = () => {
   const [chat, setChat] = useState();
@@ -22,7 +24,15 @@ const Chat = () => {
     file: null,
     url: "",
   });
-
+  const [loading, setLoading] = useState(false);
+  const [language, setLanguage] = useState(languages[0].value);
+  const [generatedTranslation, setGeneratedTranslation] = useState("");
+  const [generatedTranslations, setGeneratedTranslations] = useState({});
+  const [activeMessageId, setActiveMessageId] = useState(null);
+  const openai = new OpenAI({
+    apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+    dangerouslyAllowBrowser: true,
+  });
   const { currentUser } = useUserStore();
   const { chatId, user, isCurrentUserBlocked, isReceiverBlocked } =
     useChatStore();
@@ -112,6 +122,47 @@ const Chat = () => {
     }
   };
 
+  async function handleTranslate(messageID, messageText) {
+    if (activeMessageId === messageID && generatedTranslations[messageID]) {
+      setActiveMessageId(null);
+      return;
+    }
+    setLoading(true);
+    setActiveMessageId(messageID);
+    const completion = await openai.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: `You are a translator. Please translate the following text into ${language}. The translation should be grammatically correct.`,
+        },
+        { role: "user", content: `${messageText}`},
+      ],
+      model: "gpt-3.5-turbo",
+    });
+    const translation = completion.choices[0].message.content;
+    setGeneratedTranslations({...generatedTranslations,
+      [messageID]: translation,
+    });
+    setLoading(false);
+  }
+
+  const handleLanguageChange = (e) => {
+    const selectedValue = e.target.value;
+    const selectedLabel = languages.find((language) => language.value === selectedValue)?.value;
+
+    if (selectedLabel) {
+      setLanguage(selectedLabel);
+    }
+  }
+
+  useEffect(() => {
+    if (generatedTranslation) {
+      console.log("Generated Translation Updated: ", generatedTranslation);
+      
+    }
+  }, [generatedTranslation]);
+
+  
   return (
     <div className="chat">
       <div className="top">
@@ -122,10 +173,19 @@ const Chat = () => {
             <p>Lorem ipsum dolor, sit amet.</p>
           </div>
         </div>
-        <div className="icons">
-          <img src="./phone.png" alt="" />
-          <img src="./video.png" alt="" />
-          <img src="./info.png" alt="" />
+        <div className="select">
+          <img src="./translate.svg"/>
+          <select
+            id="language"
+            value={language}
+            onChange={handleLanguageChange}
+          >
+            {languages.map((language) => (
+              <option key={language.value} value={language.value}>
+                {language.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
       <div className="center">
@@ -139,8 +199,12 @@ const Chat = () => {
             >
               <div className="texts">
                 {message.img && <img src={message.img} alt="" />}
-                <p>{message.text}</p>
+                <p onClick={() => handleTranslate(message.createdAt, message.text)}>{message.text}</p>
                 <span>{format(message.createdAt.toDate())}</span>
+                {loading && activeMessageId === message.createdAt && <p>Translating...</p>}
+                {activeMessageId === message.createdAt && generatedTranslations[message.createdAt] && (
+                  <p>{generatedTranslations[message.createdAt]}</p>
+                )}
               </div>
             </div>
           ))
