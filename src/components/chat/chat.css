@@ -105,6 +105,10 @@
   align-self: flex-end;
 }
 
+.chat .center .message.own .texts {
+  cursor: pointer;
+}
+
 .chat .center .message.own .texts p {
   background-color: #5183fe;
 }
@@ -125,6 +129,7 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
+  cursor: pointer;
 }
 
 .chat .center .message .texts img {
