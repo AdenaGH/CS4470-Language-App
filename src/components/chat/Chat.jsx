@@ -15,6 +15,9 @@ import upload from "../../lib/upload";
 import { format } from "timeago.js";
 import OpenAI from "openai";
 import languages from "../util/languages";
+import Tesseract from "tesseract.js";
+
+
 
 const Chat = () => {
   const [chat, setChat] = useState();
@@ -65,6 +68,28 @@ const Chat = () => {
         file: e.target.files[0],
         url: URL.createObjectURL(e.target.files[0]),
       });
+
+      extractTextFromImage(e.target.files[0]);
+    }
+  };
+
+  const extractTextFromImage = async (file) => {
+    setLoading(true);
+    try {
+      const result = await Tesseract.recognize(
+        URL.createObjectURL(file),
+        'eng',
+        {
+          logger: (m) => console.log(m), // Log progress if needed
+        }
+      );
+      if (result.data.text !== "") {
+        setText((prev) => "The text in the image says: " + prev + " " + result.data.text);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
