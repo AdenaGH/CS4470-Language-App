@@ -16,6 +16,7 @@ import { format } from "timeago.js";
 import OpenAI from "openai";
 import languages from "../util/languages";
 import Tesseract from "tesseract.js";
+import SpeechRecognition from "../hooks/SpeechRecognition";
 
 
 
@@ -36,6 +37,11 @@ const Chat = () => {
     apiKey: import.meta.env.VITE_OPENAI_API_KEY,
     dangerouslyAllowBrowser: true,
   });
+  const {
+    isListening,
+    startListening,
+    stopListening
+  } = SpeechRecognition({ onSpeechResult: (transcript) => setText(transcript)});
   const { currentUser } = useUserStore();
   const { chatId, user, isCurrentUserBlocked, isReceiverBlocked } =
     useChatStore();
@@ -257,7 +263,8 @@ const Chat = () => {
             onChange={handleImg}
           />
           <img src="./camera.png" alt="" />
-          <img src="./mic.png" alt="" />
+          <img src="./mic.png"alt="" 
+            onClick={isListening ? stopListening: startListening}/>
         </div>
         <input
           type="text"
